@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from states import Init_state
+from state.states import Init_state
 
 @dataclass
 class Machine: 
@@ -15,3 +15,6 @@ class Machine:
     def updateState(self):
         self.state.transition_to(self)
     
+
+    def updateError(self):
+        pass

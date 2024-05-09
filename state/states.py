@@ -6,16 +6,45 @@ import requests
 
 class Init_state(Transition_state):
 
-    def transition_to(self, machine):
+    def error_transition(self, machine):
+        querys = Querys()
+        querys.update_status_message("Aborted")
+        machine.state = Aborted()
+
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
         print("--------------------------------------------------------------")
         print(" 1. Estado init:  Machine a comenzado el Trabajo")
         print("--------------------------------------------------------------")
         machine.state = Save_credentials()
 
+    def transition_to_scrapping(self, machine):
+        pass
+
+    def transition_to_charge(self, machine):
+        pass
+
+    def transition_charge(self, machine):
+        pass
+
+    def transition_to_finish(self, machine):
+        pass
 
 class Save_credentials(Transition_state):
     """ Obtenemos la registros de la la nube y los guardamos en la base de datos"""
-    def transition_to(self, machine):
+
+    def error_transition(self, machine):
+        print("error en el proceso interno del estado")
+
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
+        pass
+
+    def transition_to_scrapping(self, machine):
         querys = Querys()
         querys.insert_data(rut="19209998-6", password="ff33", status="not_process")
         time.sleep(2)
@@ -27,9 +56,18 @@ class Save_credentials(Transition_state):
         print(" 2. Estado Save_credentials:  Machine A obtenido los datos desde la nube y los a guardado en sqlite3")
         print("--------------------------------------------------------------")
 
+        querys.update_status_message("save_credential")
         machine.state = Scrapping()
 
+    def transition_to_charge(self, machine):
+        pass
 
+    def transition_charge(self, machine):
+        pass
+
+    def transition_to_finish(self, machine):
+        pass
+   
 class Scrapping(Transition_state):
 
     def populate_srapping_table(self, creds):
@@ -44,7 +82,19 @@ class Scrapping(Transition_state):
         except Exception as error:
             raise error
 
-    def transition_to(self, machine):
+    def error_transition(self, machine):
+        print("error en el proceso interno del estado")
+
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
+        pass
+
+    def transition_to_scrapping(self, machine):
+        pass
+
+    def transition_to_charge(self, machine):
         """Function heredada de la funcion abstracta"""
         try:
             querys = Querys()
@@ -54,13 +104,16 @@ class Scrapping(Transition_state):
             print("--------------------------------------------------------------")
             print(" 3. Estado Scrapping:  Machine ha registrado los datos en la tabla de scrapping")
             print("--------------------------------------------------------------")
-
+            querys.update_status_message("scrapping")
+            machine.state = To_charge()
         except Exception as error:
             print("Scrapping()", error)
-        ##return super().transition_to(machine)
+  
+    def transition_charge(self, machine):
+        pass
 
-        machine.state = To_charge()
-
+    def transition_to_finish(self, machine):
+        pass
 
 class To_charge(Transition_state):
 
@@ -73,7 +126,23 @@ class To_charge(Transition_state):
         except Exception as error:
             raise error
 
-    def transition_to(self, machine):
+    def error_transition(self, machine):
+        print("error en el proceso interno del estado")
+
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
+        pass
+
+    def transition_to_scrapping(self, machine):
+        """Function heredada de la funcion abstracta"""
+        pass
+
+    def transition_to_charge(self, machine):
+        pass
+
+    def transition_charge(self, machine):
         data = self.clear_data()
         querys = Querys()
         for row in data:
@@ -82,55 +151,103 @@ class To_charge(Transition_state):
         print("--------------------------------------------------------------")
         print(" 4. Estado To_charge: Datos preparados y listos para ser subidos a firestore")
         print("--------------------------------------------------------------")
+        querys.update_status_message("to_charge")
         machine.state = Charge()
 
+    def transition_to_finish(self, machine):
+        pass
 
 class Charge(Transition_state):
      
-     def verificar_conexion_internet(self):
-        try:
-            # Intenta hacer una solicitud a una página web, por ejemplo, google.com
-            response = requests.get("http://www.google.com", timeout=5)
-            # Si la solicitud fue exitosa (código de estado 200), devuelve True
-            return response.status_code == 200
-        except requests.ConnectionError:
-            # Si hay un error de conexión, devuelve False
-            return False
+    def error_transition(self, machine):
+        print("error en el proceso interno del estado")
 
-     def transition_to(self, machine):
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
+        pass
+
+    def transition_to_scrapping(self, machine):
+        """Function heredada de la funcion abstracta"""
+        pass
+
+    def transition_to_charge(self, machine):
+        pass
+
+    def transition_charge(self, machine):
+        pass
+
+    def transition_to_finish(self, machine):
         try:
-        
-            exist_conextion = self.verificar_conexion_internet()
+            querys = Querys()
+            exist_conextion = input("Simular error?: ")
             print("--------------------------------------------------------------")
             print(" 5. Estado Charge: cambio a estado charge")
-            if exist_conextion:
+            
+            if exist_conextion == "no":
                 
                 print(" 5. Estado Charge: Datos subidos a firestore")
+                querys.update_status_message("finish")
+                print(" 5. Estado Charge: Datos  estado cambiado a finish")
                 print("--------------------------------------------------------------")
                 machine.state = Finish()
             else:
                 raise ValueError("No fue posible realizar una conexion a internet!!!!!!")
         except Exception as error:
            # machine.state = Aborted()
+            querys.update_status_message("error")
             print(" Error in charge", error)
 
-
 class Finish(Transition_state):
-    def transition_to(self, machine):
-        try:
-            print("--------------------------------------------------------------")
-            print(" 6. Estado Finish: Trabajo finalizado")
-            print("--------------------------------------------------------------")
-        except Exception as error:
-            print(" Error in Finish()", error)
+   
+    def error_transition(self, machine):
+        print("error en el proceso interno del estado")
+
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
+        pass
+
+    def transition_to_scrapping(self, machine):
+        """Function heredada de la funcion abstracta"""
+        pass
+
+    def transition_to_charge(self, machine):
+        pass
+
+    def transition_charge(self, machine):
+        pass
+
+    def transition_charge(self, machine):
+        pass
+
+    def transition_to_finish(self, machine):
+        print("Fin del proceso")
 
 
-# class Aborted(Transition_state):
+class Aborted(Transition_state):
     
-#     def transition_to(self, machine):
-#             try:
-#                 print("--------------------------------------------------------------")
-#                 print(" 6. Estado Aborted: Se presento un error al intentar seguir con el proceso")
-#                 print("--------------------------------------------------------------")
-#             except Exception as error:
-#                 print("Error in aborted", error)
+    def error_transition(self, machine):
+        pass
+
+    def transition_to_init(self, machine):
+        pass
+
+    def transition_to_save_credential(self, machine):
+        pass
+
+    def transition_to_scrapping(self, machine):
+        """Function heredada de la funcion abstracta"""
+        pass
+
+    def transition_to_charge(self, machine):
+        pass
+
+    def transition_charge(self, machine):
+        machine.state = Charge()
+
+
+    def transition_to_finish(self, machine):
+        pass

@@ -58,8 +58,40 @@ class Querys:
            
         except Exception as error:
             raise error
-      
-       
+        
+    
+    def get_message(self):
+        try:
+            cursor, conn = self.connection
+            cursor.execute("SELECT * FROM message")
+            message = cursor.fetchall()
+            return message[0]
+            
+
+        except Exception as error:
+            print("get_message", error)
+
+    def update_status_message(self, nuevo_valor):
+        try:
+           
+            cursor, conn = self.connection
+            consulta = """
+                UPDATE message
+                SET status = ?  -- Los valores a actualizar
+                WHERE id = ?  -- La condición para seleccionar el registro a actualizar
+            """
+            # Valores para la actualización
+            
+            condicion = 1
+
+            # Ejecutar la consulta
+            cursor.execute(consulta, (nuevo_valor, condicion))
+            # Confirmar los cambios
+            conn.commit()
+
+        except Exception as error:
+            print("update_status_message()", error)
+
     def close_db(self):
         try:
             """Cerrar coneccion con la base de datos"""

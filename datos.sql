@@ -28,3 +28,15 @@ CREATE TABLE to_chart (
     number_3 INTEGER,
     Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE message (
+    id INTEGER PRIMARY KEY,
+    message TEXT,
+    status TEXT,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+

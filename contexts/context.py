@@ -12,9 +12,23 @@ class Machine:
 
     state = Init_state() #Una referencia al estado actual del contexto.
 
-    def updateState(self):
-        self.state.transition_to(self)
-    
-
     def updateError(self):
-        pass
+        self.state.error_transition(self)
+   
+    def update_to_init(self):
+        self.state.transition_to_init(self)
+
+    def update_to_save_credential(self):
+        self.state.transition_to_save_credential(self)
+   
+    def update_to_scrapping(self):
+        self.state.transition_to_scrapping(self)
+
+    def update_to_charge(self):
+        self.state.transition_to_charge(self)
+
+    def update_charge(self):
+        self.state.transition_charge(self)
+
+    def update_to_finish(self):
+        self.state.transition_to_finish(self)
